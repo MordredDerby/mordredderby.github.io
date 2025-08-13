@@ -1,65 +1,92 @@
+@font-face {
+  font-family: 'Мирослав'; /* Choose a name for your font */
+  src: url('Мирослав Regular.ttf') format('ttf'), /* Path to your font file */
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
-    font-family: 'Мирослав', serif;
-    background-color: #e6e2d6;
-    background-image: url('https://static.vecteezy.com/system/resources/previews/013/761/708/non_2x/winter-fores-glade-with-trees-at-night-landscape-with-snow-covered-trees-colorful-illustration-vector.jpg');
-    background-size: cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    color: #3d2b1f;
+  font-family: 'Мирослав', serif;
+  background-color: #e6e2d6;
+  background-image: url("Тайга.jpg");
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  color: #3d2b1f;
 }
 
 .game-container {
-    background: rgba(255, 248, 220, 0.9);
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    border: 2px solid #8b4513;
+  background: rgba(255, 248, 220, 0.9);
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  border: 2px solid #8b4513;
 }
 
 button {
-    
-    background: #8b4513;
-    color: #fff8dc;
-    border: none;
-    padding: 12px 24px;
-    margin: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.3s;
+  background: #8b4513;
+  color: #fff8dc;
+  border: none;
+  padding: 12px 16px;
+  margin: 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
-button:hover {
-    background: #a0522d;
-    transform: scale(1.05);
-}
+button:hover { background: #a0522d; transform: translateY(-1px) scale(1.03); box-shadow: 0 6px 14px rgba(0,0,0,.15); }
+button:active { transform: translateY(0) scale(0.995); }
+button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
-#clickButton {
-    background: #6b8e23;
-    font-size: 22px;
-    padding: 18px 36px;
-}
+#clickButton { background: #6b8e23; font-size: 22px; padding: 18px 24px; display:inline-flex; align-items:center; gap:10px; }
 
-.upgrades {
-    margin-top: 25px;
-    border-top: 2px dashed #8b4513;
-    padding-top: 15px;
-}
+.upgrades { margin-top: 25px; border-top: 2px dashed #8b4513; padding-top: 15px; }
 
-h1 {
-    color: #5d1917;
-    text-shadow: 1px 1px 2px #ccc;
-}
+.upgrade { display:flex; align-items:center; gap:10px; justify-content:space-between; min-width: 280px; }
+.upgrade .icon { font-size: 18px; }
+.upgrade .label { flex:1; text-align:left; }
+.upgrade .meta { display:flex; gap:12px; }
+.upgrade .price::before { content:"💰"; margin-right:4px; }
+.upgrade .count::before { content:"×"; margin-right:4px; }
 
+h1 { color: #5d1917; text-shadow: 1px 1px 2px #ccc; }
+
+/* Fox animation */
 .fox-animation {
-    position: fixed;
-    font-size: 30px;
-    pointer-events: none;
-    z-index: 100;
-    transition: all 0.5s ease-out;
-    opacity: 0;
+  position: fixed;
+  font-size: 30px;
+  pointer-events: none;
+  z-index: 100;
+  transition: all 0.6s ease-out;
+  opacity: 0;
 }
+.fox-animation .gain { margin-left: 6px; font-weight: 700; filter: drop-shadow(0 0 2px rgba(0,0,0,.2)); }
+.fox-animation .gain.crit { color: #c1121f; }
+
+/* Simple tooltips using data-tip */
+.has-tip { position: relative; }
+.has-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  bottom: 100%;
+  background: rgba(34,34,34,0.96);
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: pre-wrap;
+  max-width: 260px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s, transform .15s;
+}
+.has-tip:hover::after { opacity: 1; transform: translateX(-50%) translateY(-12px); }

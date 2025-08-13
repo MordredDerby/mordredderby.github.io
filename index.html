@@ -1,27 +1,64 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ясак Кликер</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ясак Кликер</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="game-container">
-        <h1>🦊 Ясак Кликер</h1>
-        <div class="score-container">
-            <p id="score">Пушнина: ${furs}</p>
-            <p id="fursPerSecond">${fursPerSecond} шкурок/сек</p>
-            <p id="clickPower">За клик: ${clickPower}</p>
-        </div>
-        <button id="clickButton">Добыть пушнину</button>
-        
-        <div class="upgrades">
-            <h2>Улучшения</h2>
-            <button class="upgrade" id="hunters">Охотники (20) [${hunters}]</button>
-            <button class="upgrade" id="traps">Ловушки (50) [${traps}]</button>
-        </div>
+  <div class="game-container">
+    <h1>🦊 Ясак Кликер</h1>
+
+    <div class="score-container">
+      <p id="score">Пушнина: 0</p>
+      <p id="fursPerSecond">0 шкурок/сек</p>
+      <p id="clickPower">За клик: 1</p>
     </div>
-    <script src="script.js"></script>
+
+    <button id="clickButton"><span class="icon">🎯</span><span class="label">Добыть пушнину</span></button>
+
+    <div class="upgrades">
+      <h2>Улучшения</h2>
+
+      <button class="upgrade has-tip" id="traps" data-tip="+0.1 шкурки/сек за ловушку.">
+        <span class="icon">🪤</span>
+        <span class="label">Ловушки</span>
+        <span class="meta">
+          <span class="price" id="price-traps">50</span>
+          <span class="count" id="count-traps">x0</span>
+        </span>
+      </button>
+
+      <button class="upgrade has-tip" id="hunters" data-tip="+1 добытая шкурка  за охотника.">
+        <span class="icon">🏹</span>
+        <span class="label">Охотники</span>
+        <span class="meta">
+          <span class="price" id="price-hunters">20</span>
+          <span class="count" id="count-hunters">x0</span>
+        </span>
+      </button>
+
+      <button class="upgrade has-tip" id="zimovye" data-tip="Каждый уровень: +1% к пассивному доходу за каждые 5 охотников.">
+        <span class="icon">🏕️</span>
+        <span class="label">Ясачные зимовья</span>
+        <span class="meta">
+          <span class="price" id="price-zimovye">200</span>
+          <span class="count" id="count-zimovye">x0</span>
+        </span>
+      </button>
+
+      <button class="upgrade has-tip" id="dogs" data-tip="+0.5% к шансу пятикратной добычи от клика за уровень (макс. 20 уровней)">
+        <span class="icon">🐕</span>
+        <span class="label">Охотничьи псы</span>
+        <span class="meta">
+          <span class="price" id="price-dogs">300</span>
+          <span class="count" id="count-dogs">x0/20</span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <script src="script.js" defer></script>
 </body>
 </html>
