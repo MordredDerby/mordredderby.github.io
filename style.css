@@ -1,0 +1,65 @@
+body {
+    font-family: 'Мирослав', serif;
+    background-color: #e6e2d6;
+    background-image: url('https://static.vecteezy.com/system/resources/previews/013/761/708/non_2x/winter-fores-glade-with-trees-at-night-landscape-with-snow-covered-trees-colorful-illustration-vector.jpg');
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    color: #3d2b1f;
+}
+
+.game-container {
+    background: rgba(255, 248, 220, 0.9);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    border: 2px solid #8b4513;
+}
+
+button {
+    
+    background: #8b4513;
+    color: #fff8dc;
+    border: none;
+    padding: 12px 24px;
+    margin: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+button:hover {
+    background: #a0522d;
+    transform: scale(1.05);
+}
+
+#clickButton {
+    background: #6b8e23;
+    font-size: 22px;
+    padding: 18px 36px;
+}
+
+.upgrades {
+    margin-top: 25px;
+    border-top: 2px dashed #8b4513;
+    padding-top: 15px;
+}
+
+h1 {
+    color: #5d1917;
+    text-shadow: 1px 1px 2px #ccc;
+}
+
+.fox-animation {
+    position: fixed;
+    font-size: 30px;
+    pointer-events: none;
+    z-index: 100;
+    transition: all 0.5s ease-out;
+    opacity: 0;
+}
