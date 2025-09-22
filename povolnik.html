@@ -300,18 +300,29 @@
       img.src = src + (src.includes("?")?"&":"?") + "v=" + Math.random().toString(36).slice(2);
     });
   }
+  let portraitRequestId = 0;
+
   async function loadPortraitForGender(gender){
     const box = $("#portraitBox");
     if (!box) return;
 
+    const requestId = ++portraitRequestId;
     box.innerHTML = '<div class="ph">Ищем портрет…</div>';
     const pool = buildCandidatesByGender(gender);
 
     let loadedSrc = null;
     for (const candidate of pool){
-      try{ loadedSrc = await tryLoad(candidate); break; }
-      catch(_){ /* пробуем следующий */ }
+      try{
+        loadedSrc = await tryLoad(candidate);
+        break;
+      }
+      catch(_){
+        if (requestId !== portraitRequestId) return;
+        /* пробуем следующий */
+      }
     }
+
+    if (requestId !== portraitRequestId) return;
 
     if (loadedSrc){
       box.innerHTML = "";
