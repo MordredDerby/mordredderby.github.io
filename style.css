@@ -71,6 +71,14 @@ body {
   flex-direction: column;
   gap: 10px;
 }
+.ach-dropdown,
+.ach-list,
+.ach-card,
+.ach-card * {
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
 
 .game-container {
   background: rgba(255, 248, 220, 0.9);
@@ -211,3 +219,40 @@ h1 { color: #5d1917; text-shadow: 1px 1px 2px #ccc; }
 .toast-glow { position:absolute; inset:-6px; border-radius:18px; box-shadow: 0 0 24px 6px rgba(255, 215, 0, .6), 0 0 48px 12px rgba(255, 160, 0, .4); pointer-events:none; animation: glow 1.2s ease-in-out infinite alternate; }
 @keyframes glow { from { opacity:.85; } to { opacity:.45; } }
 @keyframes toast-in { from { transform: translateY(16px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+
+/* ==== ФОНОВЫЙ СТРЕЛЕЦ ==== */
+.background-character {
+  position: fixed;
+  bottom: 12vh;
+  left: -18vw;
+  width: 220px;
+  height: 320px;
+  background-image: url('strelets.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+  z-index: 80;
+  pointer-events: none;
+  animation: strelets-walk 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes strelets-walk {
+  0% {
+    transform: translate3d(0, -12px, 0) scale(0.9);
+  }
+  20% {
+    transform: translate3d(18vw, 8px, 0) scale(0.96);
+  }
+  40% {
+    transform: translate3d(36vw, 16px, 0) scale(1.05);
+  }
+  60% {
+    transform: translate3d(54vw, -6px, 0) scale(0.97);
+  }
+  80% {
+    transform: translate3d(72vw, 20px, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(90vw, 4px, 0) scale(0.95);
+  }
+}
