@@ -71,6 +71,14 @@ body {
   flex-direction: column;
   gap: 10px;
 }
+.ach-dropdown,
+.ach-list,
+.ach-card,
+.ach-card * {
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
 
 .game-container {
   background: rgba(255, 248, 220, 0.9);
@@ -79,6 +87,8 @@ body {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
   text-align: center;
   border: 2px solid #8b4513;
+  position: relative;
+  z-index: 200;
 }
 
 .top-controls { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
@@ -211,3 +221,53 @@ h1 { color: #5d1917; text-shadow: 1px 1px 2px #ccc; }
 .toast-glow { position:absolute; inset:-6px; border-radius:18px; box-shadow: 0 0 24px 6px rgba(255, 215, 0, .6), 0 0 48px 12px rgba(255, 160, 0, .4); pointer-events:none; animation: glow 1.2s ease-in-out infinite alternate; }
 @keyframes glow { from { opacity:.85; } to { opacity:.45; } }
 @keyframes toast-in { from { transform: translateY(16px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+
+/* ==== ФОНОВЫЙ СТРЕЛЕЦ ==== */
+.background-character {
+  position: fixed;
+  bottom: 10vh;
+  left: -22vw;
+  width: min(24vw, 280px);
+  height: min(36vw, 360px);
+  background-image: url('strelets.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center bottom;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  animation: strelets-wander 26s linear infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes strelets-wander {
+  0% {
+    transform: translate3d(0, -18px, 0) scale(0.86);
+    opacity: 0;
+  }
+  5% {
+    transform: translate3d(8vw, 8px, 0) scale(0.9);
+    opacity: 1;
+  }
+  20% {
+    transform: translate3d(28vw, -10px, 0) scale(0.98);
+  }
+  40% {
+    transform: translate3d(50vw, 14px, 0) scale(1.06);
+  }
+  60% {
+    transform: translate3d(72vw, -8px, 0) scale(1.14);
+  }
+  80% {
+    transform: translate3d(96vw, 18px, 0) scale(1.22);
+    opacity: 1;
+  }
+  90% {
+    transform: translate3d(114vw, -14px, 0) scale(1.26);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate3d(130vw, 0, 0) scale(1.18);
+    opacity: 0;
+  }
+}
