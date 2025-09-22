@@ -17,11 +17,16 @@ const COSTS = { traps: 50, hunters: 20, zimovye: 200, dogs: 300 };
 
 // ===== ДОСТИЖЕНИЯ =====
 const ACHIEVEMENTS = [
-  { id: 'first_fur',  name: 'Первая шкурка',     desc: 'Получите первую шкурку',            img: 'achievement_placeholder.png', test: (s)=> s.fursTotal >= 1 },
-  { id: '100_furs',   name: 'Сотня пушнины',     desc: 'Добыть 100 пушнины',                img: 'achievement_placeholder.png', test: (s)=> s.fursTotal >= 100 },
-  { id: '1000_furs',  name: 'Тысяча пушнины',    desc: 'Добыть 1000 пушнины',               img: 'achievement_placeholder.png', test: (s)=> s.fursTotal >= 1000 },
-  { id: '10_traps',   name: 'Мастер ловушек',    desc: 'Поставить 10 ловушек',              img: 'achievement_placeholder.png', test: (s)=> s.traps >= 10 },
-  { id: '20_hunters', name: 'Сила артели',       desc: 'Собрать 20 охотников',              img: 'achievement_placeholder.png', test: (s)=> s.hunters >= 20 },
+  { id: 'first_fur',     name: 'Первая шкурка',       desc: 'Получите первую шкурку',               img: 'https://cdn-icons-png.flaticon.com/512/616/616490.png', test: (s)=> s.fursTotal >= 1 },
+  { id: 'first_hunter',  name: 'Первый артельщик',    desc: 'Принять первого охотника',             img: 'https://cdn-icons-png.flaticon.com/512/599/599502.png', test: (s)=> s.hunters >= 1 },
+  { id: 'first_zimovye', name: 'Первое зимовье',      desc: 'Построить ясачное зимовье',            img: 'https://cdn-icons-png.flaticon.com/512/3076/3076129.png', test: (s)=> s.zimovye >= 1 },
+  { id: '100_furs',      name: 'Сотня пушнины',       desc: 'Добыть 100 пушнины',                   img: 'https://cdn-icons-png.flaticon.com/512/805/805370.png', test: (s)=> s.fursTotal >= 100 },
+  { id: '10_traps',      name: 'Мастер ловушек',      desc: 'Поставить 10 ловушек',                 img: 'https://cdn-icons-png.flaticon.com/512/3595/3595455.png', test: (s)=> s.traps >= 10 },
+  { id: '20_hunters',    name: 'Сила артели',         desc: 'Собрать 20 охотников',                 img: 'https://cdn-icons-png.flaticon.com/512/3417/3417886.png', test: (s)=> s.hunters >= 20 },
+  { id: '25_traps',      name: 'Хозяин угодий',       desc: 'Поставить 25 ловушек',                 img: 'https://cdn-icons-png.flaticon.com/512/2921/2921822.png', test: (s)=> s.traps >= 25 },
+  { id: '1000_furs',     name: 'Тысяча пушнины',      desc: 'Добыть 1000 пушнины',                  img: 'https://cdn-icons-png.flaticon.com/512/2682/2682065.png', test: (s)=> s.fursTotal >= 1000 },
+  { id: 'pack_of_hounds',name: 'Верная стая',         desc: 'Собрать 10 охотничьих псов',           img: 'https://cdn-icons-png.flaticon.com/512/616/616408.png', test: (s)=> s.dogs >= 10 },
+  { id: '5000_furs',     name: 'Богатства тайги',     desc: 'Добыть 5000 пушнины',                  img: 'https://cdn-icons-png.flaticon.com/512/1046/1046751.png', test: (s)=> s.fursTotal >= 5000 },
 ];
 
 function hasAch(id){ return STATE.achievements.includes(id); }
@@ -56,9 +61,8 @@ const elements = {
   dogsUpgrade: $("dogs"),
   resetButton: $("reset"),
   achievementsBtn: $("achievementsBtn"),
-  achievementsModal: $("achievementsModal"),
+  achievementsDropdown: $("achievementsDropdown"),
   achievementsList: $("achievementsList"),
-  achClose: $("achClose"),
   toastHost: $("achievementToastHost"),
 };
 
@@ -123,26 +127,29 @@ function renderAchievements(){
   const opened = [], locked = [];
   for (const a of ACHIEVEMENTS){ (hasAch(a.id) ? opened : locked).push(a); }
   const list = [...opened, ...locked];
-  elements.achievementsList.innerHTML = list.map(a => `
-    <div class=\"ach-card ${hasAch(a.id) ? 'open' : 'locked'}\">
-      <img src=\"${a.img}\" alt=\"${a.name}\" class=\"ach-img\" />
-      <div class=\"ach-body\">
-        <div class=\"ach-title\">${a.name}</div>
-        <div class=\"ach-desc\">${a.desc}</div>
-      </div>
-    </div>
-  `).join('');
+  elements.achievementsList.innerHTML = list.map(a => {
+    const unlocked = hasAch(a.id);
+    return `
+      <li class=\"ach-card ${unlocked ? 'open' : 'locked'}\" role=\"menuitem\">
+        <img src=\"${a.img}\" alt=\"${a.name}\" class=\"ach-img\" />
+        <div class=\"ach-body\">
+          <div class=\"ach-title\">${a.name}</div>
+          <div class=\"ach-desc\">${a.desc}</div>
+        </div>
+      </li>
+    `;
+  }).join('');
 }
 
-function openAchievements(){
-  renderAchievements();
-  elements.achievementsModal.classList.remove('hidden');
-  elements.achievementsModal.setAttribute('aria-hidden','false');
+let _achievementsOpen = false;
+function setAchievementsOpen(isOpen){
+  _achievementsOpen = isOpen;
+  elements.achievementsDropdown.classList.toggle('hidden', !isOpen);
+  elements.achievementsDropdown.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+  elements.achievementsBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  if (isOpen) renderAchievements();
 }
-function closeAchievements(){
-  elements.achievementsModal.classList.add('hidden');
-  elements.achievementsModal.setAttribute('aria-hidden','true');
-}
+function toggleAchievements(){ setAchievementsOpen(!_achievementsOpen); }
 
 // ===== ТОСТ О ДОСТИЖЕНИИ =====
 function showAchievementToast(ach){
@@ -155,7 +162,7 @@ function showAchievementToast(ach){
   `;
   card.addEventListener('click', ()=> card.remove());
   elements.toastHost.appendChild(card);
-  setTimeout(()=> card.remove(), 6000);
+  setTimeout(()=> card.remove(), 10000);
 }
 
 let _rafScheduled = false;
@@ -281,16 +288,24 @@ function incomeTick(nowMs){
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 function init(){
-  loadGame(); recalcRates();
+  loadGame(); recalcRates(); checkAchievements();
   elements.clickButton.addEventListener("click", handleClick);
   elements.huntersUpgrade.addEventListener("click", handleHunterUpgrade);
   elements.trapsUpgrade.addEventListener("click", handleTrapUpgrade);
   elements.zimovyeUpgrade.addEventListener("click", handleZimovyeUpgrade);
   elements.dogsUpgrade.addEventListener("click", handleDogsUpgrade);
   elements.resetButton.addEventListener("click", resetProgress);
-  elements.achievementsBtn.addEventListener('click', openAchievements);
-  elements.achievementsModal.addEventListener('click', (e)=>{ if (e.target.hasAttribute('data-close')) closeAchievements(); });
-  elements.achClose.addEventListener('click', closeAchievements);
+  elements.achievementsBtn.addEventListener('click', (ev)=>{ ev.stopPropagation(); toggleAchievements(); });
+  elements.achievementsDropdown.addEventListener('click', (ev)=> ev.stopPropagation());
+  document.addEventListener('click', (ev)=>{
+    if (!_achievementsOpen) return;
+    if (!elements.achievementsBtn.contains(ev.target) && !elements.achievementsDropdown.contains(ev.target)) {
+      setAchievementsOpen(false);
+    }
+  });
+  document.addEventListener('keydown', (ev)=>{ if (ev.key === 'Escape' && _achievementsOpen) setAchievementsOpen(false); });
+  renderAchievements();
+  setAchievementsOpen(false);
   renderNow(); requestAnimationFrame(incomeTick);
 }
 if (document.readyState==='complete' || document.readyState==='interactive') init(); else window.addEventListener('DOMContentLoaded', init);

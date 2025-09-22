@@ -7,6 +7,17 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="achievements-panel">
+    <button id="achievementsBtn" class="achievements-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="achievementsDropdown">
+      <span class="icon">🏆</span>
+      <span class="label">Достижения</span>
+      <span class="chevron">▾</span>
+    </button>
+    <div id="achievementsDropdown" class="ach-dropdown hidden" role="menu" aria-hidden="true">
+      <ul id="achievementsList" class="ach-list"></ul>
+    </div>
+  </div>
+
   <div class="game-container">
     <h1>🦊 Ясак Кликер</h1>
 
@@ -18,9 +29,6 @@
 
     <div class="top-controls">
       <button id="clickButton"><span class="icon">🎯</span><span class="label">Добыть пушнину</span></button>
-      <button id="achievementsBtn" class="has-tip" data-tip="Открыть список достижений">
-        <span class="icon">🏆</span><span class="label">Достижения</span>
-      </button>
     </div>
 
     <div class="upgrades">
@@ -73,18 +81,6 @@
           <span class="label">Сброс прогресса</span>
         </button>
       </div>
-    </div>
-  </div>
-
-  <!-- МОДАЛЬНОЕ ОКНО ДОСТИЖЕНИЙ -->
-  <div id="achievementsModal" class="modal hidden" aria-hidden="true">
-    <div class="modal-backdrop" data-close></div>
-    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="achTitle">
-      <div class="modal-header">
-        <h3 id="achTitle">🏆 Достижения</h3>
-        <button class="modal-close" id="achClose" title="Закрыть" data-close>✖</button>
-      </div>
-      <div id="achievementsList" class="ach-grid"></div>
     </div>
   </div>
 
