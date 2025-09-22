@@ -16,12 +16,18 @@
       <p id="clickPower">За клик: 1</p>
     </div>
 
-    <button id="clickButton"><span class="icon">🎯</span><span class="label">Добыть пушнину</span></button>
+    <div class="top-controls">
+      <button id="clickButton"><span class="icon">🎯</span><span class="label">Добыть пушнину</span></button>
+      <button id="achievementsBtn" class="has-tip" data-tip="Открыть список достижений">
+        <span class="icon">🏆</span><span class="label">Достижения</span>
+      </button>
+    </div>
 
     <div class="upgrades">
       <h2>Улучшения</h2>
 
-      <button class="upgrade has-tip" id="traps" data-tip="+0.1 шкурки/сек за ловушку.">
+      <button class="upgrade has-tip" id="traps" data-tip="Пассивный доход
++0.1 шкурки/сек за ловушку.">
         <span class="icon">🪤</span>
         <span class="label">Ловушки</span>
         <span class="meta">
@@ -30,7 +36,8 @@
         </span>
       </button>
 
-      <button class="upgrade has-tip" id="hunters" data-tip="+1 добытая шкурка  за охотника.">
+      <button class="upgrade has-tip" id="hunters" data-tip="Клики
++1 к силе клика за охотника.">
         <span class="icon">🏹</span>
         <span class="label">Охотники</span>
         <span class="meta">
@@ -39,7 +46,8 @@
         </span>
       </button>
 
-      <button class="upgrade has-tip" id="zimovye" data-tip="Каждый уровень: +1% к пассивному доходу за каждые 5 охотников.">
+      <button class="upgrade has-tip" id="zimovye" data-tip="Множитель пассива
+Каждый уровень: +1% к пассивному доходу за каждые 5 охотников.">
         <span class="icon">🏕️</span>
         <span class="label">Ясачные зимовья</span>
         <span class="meta">
@@ -48,7 +56,9 @@
         </span>
       </button>
 
-      <button class="upgrade has-tip" id="dogs" data-tip="+0.5% к шансу пятикратной добычи от клика за уровень (макс. 20 уровней)">
+      <button class="upgrade has-tip" id="dogs" data-tip="Крит-успех клика
++0.5% к шансу x5 за уровень (макс. 20 уровней).
+Первый клик после покупки — гарантированно критический.">
         <span class="icon">🐕</span>
         <span class="label">Охотничьи псы</span>
         <span class="meta">
@@ -56,8 +66,30 @@
           <span class="count" id="count-dogs">x0/20</span>
         </span>
       </button>
+
+      <div class="controls">
+        <button id="reset" class="danger has-tip" data-tip="Сбросить весь прогресс (безвозвратно)">
+          <span class="icon">🗑️</span>
+          <span class="label">Сброс прогресса</span>
+        </button>
+      </div>
     </div>
   </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО ДОСТИЖЕНИЙ -->
+  <div id="achievementsModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="achTitle">
+      <div class="modal-header">
+        <h3 id="achTitle">🏆 Достижения</h3>
+        <button class="modal-close" id="achClose" title="Закрыть" data-close>✖</button>
+      </div>
+      <div id="achievementsList" class="ach-grid"></div>
+    </div>
+  </div>
+
+  <!-- ТОСТ-ОПОВЕЩЕНИЕ О ДОСТИЖЕНИИ -->
+  <div id="achievementToastHost" class="toast-host"></div>
 
   <script src="script.js" defer></script>
 </body>

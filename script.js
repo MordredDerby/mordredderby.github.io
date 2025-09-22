@@ -8,9 +8,33 @@ const STATE = {
   zimovye: 0,       // ясачные зимовья — множитель пассива
   dogs: 0,          // охотничьи псы — шанс критического 5х клика (0.5% за уровень, максимум 20)
   forceNextCrit: false,
+  // достижения
+  achievements: [],           // массив id открытых достижений
+  fursTotal: 0,               // всего добыто (для порогов 1/100/1000)
 };
 
 const COSTS = { traps: 50, hunters: 20, zimovye: 200, dogs: 300 };
+
+// ===== ДОСТИЖЕНИЯ =====
+const ACHIEVEMENTS = [
+  { id: 'first_fur',  name: 'Первая шкурка',     desc: 'Получите первую шкурку',            img: 'achievement_placeholder.png', test: (s)=> s.fursTotal >= 1 },
+  { id: '100_furs',   name: 'Сотня пушнины',     desc: 'Добыть 100 пушнины',                img: 'achievement_placeholder.png', test: (s)=> s.fursTotal >= 100 },
+  { id: '1000_furs',  name: 'Тысяча пушнины',    desc: 'Добыть 1000 пушнины',               img: 'achievement_placeholder.png', test: (s)=> s.fursTotal >= 1000 },
+  { id: '10_traps',   name: 'Мастер ловушек',    desc: 'Поставить 10 ловушек',              img: 'achievement_placeholder.png', test: (s)=> s.traps >= 10 },
+  { id: '20_hunters', name: 'Сила артели',       desc: 'Собрать 20 охотников',              img: 'achievement_placeholder.png', test: (s)=> s.hunters >= 20 },
+];
+
+function hasAch(id){ return STATE.achievements.includes(id); }
+function unlockAchievement(ach){
+  if (hasAch(ach.id)) return;
+  STATE.achievements.push(ach.id);
+  saveSoon();
+  renderAchievements();
+  showAchievementToast(ach);
+}
+function checkAchievements(){
+  for (const ach of ACHIEVEMENTS){ if (!hasAch(ach.id) && ach.test(STATE)) unlockAchievement(ach); }
+}
 
 // Internal helpers
 let _dirty = false;          // marks that state changed since last save
@@ -30,6 +54,12 @@ const elements = {
   trapsUpgrade: $("traps"),
   zimovyeUpgrade: $("zimovye"),
   dogsUpgrade: $("dogs"),
+  resetButton: $("reset"),
+  achievementsBtn: $("achievementsBtn"),
+  achievementsModal: $("achievementsModal"),
+  achievementsList: $("achievementsList"),
+  achClose: $("achClose"),
+  toastHost: $("achievementToastHost"),
 };
 
 // ====== UI (минимум лишних обновлений) ======
@@ -62,6 +92,14 @@ function recalcRates() {
   STATE.fursPerSecond = computeFps();           // для отображения
 }
 
+function updateAffordability() {
+  const canBuy = (cost) => STATE.furs >= cost;
+  elements.trapsUpgrade.disabled   = !canBuy(COSTS.traps);
+  elements.huntersUpgrade.disabled = !canBuy(COSTS.hunters);
+  elements.zimovyeUpgrade.disabled = !canBuy(COSTS.zimovye);
+  elements.dogsUpgrade.disabled    = (STATE.dogs >= 20) || !canBuy(COSTS.dogs);
+}
+
 function renderNow() {
   recalcRates();
   const scoreText = `Пушнина: ${formatInt(STATE.furs)}`;
@@ -77,11 +115,47 @@ function renderNow() {
   setBtnMeta(elements.zimovyeUpgrade, COSTS.zimovye, STATE.zimovye);
   setBtnMeta(elements.dogsUpgrade, COSTS.dogs, STATE.dogs, 20);
 
-  const shouldDisableDogs = STATE.dogs >= 20;
-  if (uiCache.dogsDisabled !== shouldDisableDogs) {
-    elements.dogsUpgrade.disabled = shouldDisableDogs;
-    uiCache.dogsDisabled = shouldDisableDogs;
-  }
+  updateAffordability();
+}
+
+// ===== РЕНДЕР ДОСТИЖЕНИЙ =====
+function renderAchievements(){
+  const opened = [], locked = [];
+  for (const a of ACHIEVEMENTS){ (hasAch(a.id) ? opened : locked).push(a); }
+  const list = [...opened, ...locked];
+  elements.achievementsList.innerHTML = list.map(a => `
+    <div class=\"ach-card ${hasAch(a.id) ? 'open' : 'locked'}\">
+      <img src=\"${a.img}\" alt=\"${a.name}\" class=\"ach-img\" />
+      <div class=\"ach-body\">
+        <div class=\"ach-title\">${a.name}</div>
+        <div class=\"ach-desc\">${a.desc}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAchievements(){
+  renderAchievements();
+  elements.achievementsModal.classList.remove('hidden');
+  elements.achievementsModal.setAttribute('aria-hidden','false');
+}
+function closeAchievements(){
+  elements.achievementsModal.classList.add('hidden');
+  elements.achievementsModal.setAttribute('aria-hidden','true');
+}
+
+// ===== ТОСТ О ДОСТИЖЕНИИ =====
+function showAchievementToast(ach){
+  const card = document.createElement('div');
+  card.className = 'toast-card';
+  card.innerHTML = `
+    <div class=\"toast-glow\"></div>
+    <img src=\"${ach.img}\" alt=\"${ach.name}\" />
+    <div class=\"toast-text\"><strong>${ach.name}</strong><br>${ach.desc}</div>
+  `;
+  card.addEventListener('click', ()=> card.remove());
+  elements.toastHost.appendChild(card);
+  setTimeout(()=> card.remove(), 6000);
 }
 
 let _rafScheduled = false;
@@ -96,7 +170,16 @@ const SAVE_KEY = "yasakClickerSave";
 function tryParse(json) { try { return JSON.parse(json); } catch { return null; } }
 function saveNow() {
   try {
-    const payload = { furs: Math.max(0, Number(STATE.furs)||0), hunters: Math.max(0, Number(STATE.hunters)||0), traps: Math.max(0, Number(STATE.traps)||0), zimovye: Math.max(0, Number(STATE.zimovye)||0), dogs: Math.max(0, Number(STATE.dogs)||0), savedAt: Date.now() };
+    const payload = {
+      furs: Math.max(0, Number(STATE.furs)||0),
+      hunters: Math.max(0, Number(STATE.hunters)||0),
+      traps: Math.max(0, Number(STATE.traps)||0),
+      zimovye: Math.max(0, Number(STATE.zimovye)||0),
+      dogs: Math.max(0, Number(STATE.dogs)||0),
+      achievements: Array.from(new Set(STATE.achievements)),
+      fursTotal: Math.max(0, Number(STATE.fursTotal)||0),
+      savedAt: Date.now()
+    };
     localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
     _dirty = false; _lastAutoSave = Date.now();
   } catch (e) { console.error("Save failed:", e); }
@@ -111,16 +194,29 @@ function loadGame() {
   STATE.traps = Math.max(0, Number(data.traps)||0);
   STATE.zimovye = Math.max(0, Number(data.zimovye)||0);
   STATE.dogs = Math.max(0, Number(data.dogs)||0);
+  STATE.achievements = Array.isArray(data.achievements) ? data.achievements.slice(0) : [];
+  STATE.fursTotal = Math.max(0, Number(data.fursTotal)||0);
   recalcRates();
 }
 window.addEventListener('visibilitychange', ()=>{ if (document.hidden && _dirty) saveNow(); });
 window.addEventListener('beforeunload', ()=>{ if (_dirty) saveNow(); });
 
+// ===== СБРОС ПРОГРЕССА =====
+function resetProgress() {
+  const ok = confirm('Сбросить весь прогресс? Это действие необратимо.');
+  if (!ok) return;
+  try { localStorage.removeItem(SAVE_KEY); } catch {}
+  STATE.furs = 0; STATE.hunters = 0; STATE.traps = 0; STATE.zimovye = 0; STATE.dogs = 0;
+  STATE.forceNextCrit = false; _secAcc = 0; _passiveCarry = 0; _dirty = false;
+  STATE.achievements = []; STATE.fursTotal = 0;
+  recalcRates(); renderNow(); renderAchievements();
+}
+
 // ===== АНИМАЦИЯ ЛИСЫ =====
 function createFoxElement() {
   const fox = document.createElement("div");
   fox.className = "fox-animation";
-  fox.innerHTML = `🦊 <span class="gain"></span>`;
+  fox.innerHTML = `🦊 <span class=\"gain\"></span>`;
   document.body.appendChild(fox);
   return fox;
 }
@@ -134,7 +230,10 @@ function showFoxAnimation(x, y, amount=null, isCrit=false) {
 }
 function showPassiveFox(amountInt) {
   const rect = elements.clickButton.getBoundingClientRect();
-  const x = rect.left + rect.width/2, y = rect.top + rect.height/2;
+  const jx = (Math.random() - 0.5) * 180;
+  const jy = (Math.random() - 0.5) * 120;
+  const x = rect.left + rect.width/2 + jx;
+  const y = rect.top + rect.height/2 + jy;
   showFoxAnimation(x, y, amountInt, false);
 }
 
@@ -142,12 +241,14 @@ function showPassiveFox(amountInt) {
 function getCritChance() { return Math.min(STATE.dogs * 0.005, 0.10); } // 0.5% за уровень, максимум 10%
 function addClick(ev) {
   let isCrit=false; if (STATE.forceNextCrit){ isCrit=true; STATE.forceNextCrit=false; } else if (Math.random()<getCritChance()){ isCrit=true; }
-  const gain = (isCrit?5:1) * STATE.clickPower; STATE.furs += gain; markDirtyAndMaybeSave(); requestRender();
+  const gain = (isCrit?5:1) * STATE.clickPower; STATE.furs += gain; STATE.fursTotal += gain;
+  markDirtyAndMaybeSave(); requestRender();
   const x = ev?.clientX ?? (window.innerWidth/2), y = ev?.clientY ?? (window.innerHeight/2);
   showFoxAnimation(x, y, gain, isCrit); if (navigator.vibrate) navigator.vibrate(isCrit?25:10);
+  checkAchievements();
 }
-function buyHunters(){ const cost=COSTS.hunters; if(STATE.furs>=cost){ STATE.furs-=cost; STATE.hunters+=1; recalcRates(); markDirtyAndMaybeSave(); requestRender(); }}
-function buyTraps(){ const cost=COSTS.traps; if(STATE.furs>=cost){ STATE.furs-=cost; STATE.traps+=1; recalcRates(); markDirtyAndMaybeSave(); requestRender(); }}
+function buyHunters(){ const cost=COSTS.hunters; if(STATE.furs>=cost){ STATE.furs-=cost; STATE.hunters+=1; recalcRates(); markDirtyAndMaybeSave(); requestRender(); checkAchievements(); }}
+function buyTraps(){ const cost=COSTS.traps; if(STATE.furs>=cost){ STATE.furs-=cost; STATE.traps+=1; recalcRates(); markDirtyAndMaybeSave(); requestRender(); checkAchievements(); }}
 function buyZimovye(){ const cost=COSTS.zimovye; if(STATE.furs>=cost){ STATE.furs-=cost; STATE.zimovye+=1; recalcRates(); markDirtyAndMaybeSave(); requestRender(); }}
 function buyDogs(){ const cost=COSTS.dogs; if(STATE.dogs>=20) return; if(STATE.furs>=cost){ STATE.furs-=cost; STATE.dogs+=1; STATE.forceNextCrit=true; markDirtyAndMaybeSave(); requestRender(); }}
 
@@ -167,7 +268,10 @@ function incomeTick(nowMs){
     const total = _passiveCarry + fps;
     const intAdd = Math.floor(total);
     _passiveCarry = total - intAdd;
-    if (intAdd > 0) { STATE.furs += intAdd; showPassiveFox(intAdd); markDirtyAndMaybeSave(); }
+    if (intAdd > 0) {
+      STATE.furs += intAdd; STATE.fursTotal += intAdd; showPassiveFox(intAdd); markDirtyAndMaybeSave();
+      checkAchievements();
+    }
     _secAcc -= 1;
   }
   requestRender();
@@ -183,6 +287,10 @@ function init(){
   elements.trapsUpgrade.addEventListener("click", handleTrapUpgrade);
   elements.zimovyeUpgrade.addEventListener("click", handleZimovyeUpgrade);
   elements.dogsUpgrade.addEventListener("click", handleDogsUpgrade);
+  elements.resetButton.addEventListener("click", resetProgress);
+  elements.achievementsBtn.addEventListener('click', openAchievements);
+  elements.achievementsModal.addEventListener('click', (e)=>{ if (e.target.hasAttribute('data-close')) closeAchievements(); });
+  elements.achClose.addEventListener('click', closeAchievements);
   renderNow(); requestAnimationFrame(incomeTick);
 }
 if (document.readyState==='complete' || document.readyState==='interactive') init(); else window.addEventListener('DOMContentLoaded', init);

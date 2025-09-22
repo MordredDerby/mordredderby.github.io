@@ -1,8 +1,10 @@
+/* Встраиваем шрифт Мирослав */
 @font-face {
-  font-family: 'Мирослав'; /* Choose a name for your font */
-  src: url('Мирослав Regular.ttf') format('ttf'), /* Path to your font file */
+  font-family: 'Мирослав';
+  src: url('/Мирослав Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 body {
@@ -27,6 +29,8 @@ body {
   border: 2px solid #8b4513;
 }
 
+.top-controls { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
 button {
   background: #8b4513;
   color: #fff8dc;
@@ -37,22 +41,36 @@ button {
   cursor: pointer;
   font-size: 16px;
   transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  width: 320px; /* фиксированная ширина для единообразия */
+  height: 48px; /* фиксированная высота */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 button:hover { background: #a0522d; transform: translateY(-1px) scale(1.03); box-shadow: 0 6px 14px rgba(0,0,0,.15); }
 button:active { transform: translateY(0) scale(0.995); }
 button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
-#clickButton { background: #6b8e23; font-size: 22px; padding: 18px 24px; display:inline-flex; align-items:center; gap:10px; }
+#clickButton { background: #6b8e23; font-size: 22px; padding: 18px 24px; }
 
 .upgrades { margin-top: 25px; border-top: 2px dashed #8b4513; padding-top: 15px; }
+.controls { margin-top: 8px; }
 
-.upgrade { display:flex; align-items:center; gap:10px; justify-content:space-between; min-width: 280px; }
+.upgrade { display:flex; align-items:center; gap:10px; justify-content:space-between; }
 .upgrade .icon { font-size: 18px; }
 .upgrade .label { flex:1; text-align:left; }
 .upgrade .meta { display:flex; gap:12px; }
 .upgrade .price::before { content:"💰"; margin-right:4px; }
 .upgrade .count::before { content:"×"; margin-right:4px; }
+
+/* Кнопка сброса */
+#reset.danger { background: #8b2323; }
+#reset.danger:hover { background: #a02a2a; }
 
 h1 { color: #5d1917; text-shadow: 1px 1px 2px #ccc; }
 
@@ -90,3 +108,28 @@ h1 { color: #5d1917; text-shadow: 1px 1px 2px #ccc; }
   transition: opacity .15s, transform .15s;
 }
 .has-tip:hover::after { opacity: 1; transform: translateX(-50%) translateY(-12px); }
+
+/* ==== Модалка достижений ==== */
+.modal.hidden { display:none; }
+.modal { position: fixed; inset: 0; z-index: 200; }
+.modal-backdrop { position:absolute; inset:0; background: rgba(0,0,0,.4); }
+.modal-content { position: relative; margin: 6vh auto; width: min(920px, 92vw); background: #fff8dc; border: 2px solid #8b4513; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.35); padding: 14px; }
+.modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 8px; }
+.modal-close { width:auto; height:auto; background:#8b4513; color:#fff8dc; padding:6px 10px; border-radius:8px; }
+
+.ach-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; padding: 10px; }
+.ach-card { display:flex; gap:10px; background:#fff; border:1px solid #d7c5a3; border-radius: 10px; padding: 10px; align-items:center; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.ach-card.locked { filter: grayscale(1); opacity: .65; }
+.ach-img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; border:1px solid #c9b18a; }
+.ach-body { text-align:left; }
+.ach-title { font-weight: 700; margin-bottom: 4px; }
+.ach-desc { font-size: 14px; opacity: .85; }
+
+/* ==== Тост об открытии достижения ==== */
+.toast-host { position: fixed; inset: auto 0 24px 0; display:flex; justify-content:center; pointer-events:none; z-index: 250; }
+.toast-card { position: relative; background:#fffef5; border:2px solid #e0c781; border-radius: 14px; padding: 10px 14px; display:flex; gap:10px; align-items:center; box-shadow: 0 12px 28px rgba(0,0,0,.25); animation: toast-in .25s ease-out both; pointer-events:auto; cursor:pointer; }
+.toast-card img { width:48px; height:48px; border-radius:8px; border:1px solid #d7c5a3; }
+.toast-text { color:#5a3c18; }
+.toast-glow { position:absolute; inset:-6px; border-radius:18px; box-shadow: 0 0 24px 6px rgba(255, 215, 0, .6), 0 0 48px 12px rgba(255, 160, 0, .4); pointer-events:none; animation: glow 1.2s ease-in-out infinite alternate; }
+@keyframes glow { from { opacity:.85; } to { opacity:.45; } }
+@keyframes toast-in { from { transform: translateY(16px); opacity:0; } to { transform: translateY(0); opacity:1; } }
