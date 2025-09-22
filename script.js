@@ -29,6 +29,80 @@ const ACHIEVEMENTS = [
   { id: '5000_furs',     name: 'Богатства тайги',     desc: 'Добыть 5000 пушнины',                  img: 'https://cdn-icons-png.flaticon.com/512/1046/1046751.png', test: (s)=> s.fursTotal >= 5000 },
 ];
 
+const SOUNDS = {
+  achievement: document.getElementById('sound-achievement'),
+  crit: document.getElementById('sound-crit'),
+};
+Object.values(SOUNDS).forEach((audio) => {
+  if (!audio) return;
+  audio.preload = 'auto';
+  if (typeof audio.load === 'function') {
+    try { audio.load(); } catch (err) { console.warn('Не удалось подготовить звук', err); }
+  }
+});
+
+function playSound(audio) {
+  if (!audio) return;
+  try {
+    audio.currentTime = 0;
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {});
+    }
+  } catch (err) {
+    console.warn('Не удалось воспроизвести звук', err);
+  }
+}
+
+let audioPrimed = false;
+function primeAudioPlayback() {
+  if (audioPrimed) return;
+  audioPrimed = true;
+  Object.values(SOUNDS).forEach((audio) => {
+    if (!audio) return;
+    const wasMuted = audio.muted;
+    audio.muted = true;
+    try {
+      const playPromise = audio.play();
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise
+          .then(() => {
+            audio.pause();
+            audio.currentTime = 0;
+            audio.muted = wasMuted;
+          })
+          .catch(() => {
+            if (typeof audio.pause === 'function') {
+              try { audio.pause(); } catch {}
+            }
+            audio.currentTime = 0;
+            audio.muted = wasMuted;
+          });
+      } else {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.muted = wasMuted;
+      }
+    } catch (err) {
+      if (typeof audio.pause === 'function') {
+        try { audio.pause(); } catch {}
+      }
+      audio.currentTime = 0;
+      audio.muted = wasMuted;
+    }
+  });
+}
+function setupAudioUnlock() {
+  const unlock = () => {
+    primeAudioPlayback();
+    document.removeEventListener('pointerdown', unlock);
+    document.removeEventListener('keydown', unlock);
+  };
+  document.addEventListener('pointerdown', unlock);
+  document.addEventListener('keydown', unlock);
+}
+setupAudioUnlock();
+
 function hasAch(id){ return STATE.achievements.includes(id); }
 function unlockAchievement(ach){
   if (hasAch(ach.id)) return;
@@ -36,6 +110,7 @@ function unlockAchievement(ach){
   saveSoon();
   renderAchievements();
   showAchievementToast(ach);
+  playSound(SOUNDS.achievement);
 }
 function checkAchievements(){
   for (const ach of ACHIEVEMENTS){ if (!hasAch(ach.id) && ach.test(STATE)) unlockAchievement(ach); }
@@ -249,6 +324,7 @@ function getCritChance() { return Math.min(STATE.dogs * 0.005, 0.10); } // 0.5% 
 function addClick(ev) {
   let isCrit=false; if (STATE.forceNextCrit){ isCrit=true; STATE.forceNextCrit=false; } else if (Math.random()<getCritChance()){ isCrit=true; }
   const gain = (isCrit?5:1) * STATE.clickPower; STATE.furs += gain; STATE.fursTotal += gain;
+  if (isCrit) playSound(SOUNDS.crit);
   markDirtyAndMaybeSave(); requestRender();
   const x = ev?.clientX ?? (window.innerWidth/2), y = ev?.clientY ?? (window.innerHeight/2);
   showFoxAnimation(x, y, gain, isCrit); if (navigator.vibrate) navigator.vibrate(isCrit?25:10);
