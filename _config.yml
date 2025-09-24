@@ -1,0 +1,13 @@
+# _config.yml
+title: "Мой сайт"
+description: "Сайт с Obsidian-синтаксисом"
+theme: minima
+
+# Включите кастомные includes
+include:
+  - _includes
+
+# Опционально: отключите обработку ссылок Jekyll для большей гибкости
+markdown: kramdown
+kramdown:
+  auto_ids: false
