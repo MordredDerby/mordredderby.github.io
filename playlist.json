@@ -1,0 +1,52 @@
+{
+  "musicTracks": [
+    {
+      "id": "track1",
+      "name": "Through the Frosted Pines",
+      "src": "assets/sounds/music/Through the Frosted Pines.mp3",
+      "duration": 180
+    },
+    {
+      "id": "track2",
+      "name": "Through the Frosted Pines (1)",
+      "src": "assets/sounds/music/Through the Frosted Pines (1).mp3",
+      "duration": 180
+    },
+    {
+      "id": "track3",
+      "name": "Whispers of the Tundra",
+      "src": "assets/sounds/music/Whispers of the Tundra.mp3",
+      "duration": 200
+    },
+    {
+      "id": "track4",
+      "name": "Whispers of the Tundra (1)",
+      "src": "assets/sounds/music/Whispers of the Tundra (1).mp3",
+      "duration": 200
+    },
+    {
+      "id": "track5",
+      "name": "Untitled",
+      "src": "assets/sounds/music/Untitled.mp3",
+      "duration": 150
+    },
+    {
+      "id": "track6",
+      "name": "Untitled (1)",
+      "src": "assets/sounds/music/Untitled (1).mp3",
+      "duration": 150
+    },
+    {
+      "id": "track7",
+      "name": "Untitled (2)",
+      "src": "assets/sounds/music/Untitled (2).mp3",
+      "duration": 150
+    }
+  ],
+  "settings": {
+    "shuffle": true,
+    "repeat": false,
+    "volume": 0.3,
+    "crossfade": false
+  }
+}

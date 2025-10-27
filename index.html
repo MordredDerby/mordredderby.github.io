@@ -5,96 +5,118 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ясак Кликер</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="preload" href="assets/images/Тайга.jpg" as="image">
+  <link rel="preload" href="assets/sounds/music/Through the Frosted Pines.mp3" as="audio">
+  <link rel="preload" href="assets/sounds/music/Whispers of the Tundra.mp3" as="audio">
 </head>
 <body>
-  <div class="background-character" aria-hidden="true">
-    <div class="background-character__sprite">
-      <div class="background-character__image"></div>
-    </div>
-  </div>
-  <div class="achievements-panel">
-    <button id="achievementsBtn" class="achievements-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="achievementsDropdown">
-      <span class="icon">🏆</span>
-      <span class="label">Достижения</span>
-      <span class="chevron">▾</span>
-    </button>
-    <div id="achievementsDropdown" class="ach-dropdown hidden" role="menu" aria-hidden="true">
-      <ul id="achievementsList" class="ach-list"></ul>
-    </div>
-  </div>
-
-  <div class="game-container">
-    <h1>🦊 Ясак Кликер</h1>
-
-    <div class="score-container">
-      <p id="score">Пушнина: 0</p>
-      <p id="fursPerSecond">0 шкурок/сек</p>
-      <p id="clickPower">За клик: 1</p>
-    </div>
-
-    <div class="top-controls">
-      <button id="clickButton"><span class="icon">🎯</span><span class="label">Добыть пушнину</span></button>
-    </div>
-
-    <div class="upgrades">
-      <h2>Улучшения</h2>
-
-      <button class="upgrade has-tip" id="traps" data-tip="Пассивный доход
-+0.1 шкурки/сек за ловушку.">
-        <span class="icon">🪤</span>
-        <span class="label">Ловушки</span>
-        <span class="meta">
-          <span class="price" id="price-traps">50</span>
-          <span class="count" id="count-traps">x0</span>
-        </span>
-      </button>
-
-      <button class="upgrade has-tip" id="hunters" data-tip="Клики
-+1 к силе клика за охотника.">
-        <span class="icon">🏹</span>
-        <span class="label">Охотники</span>
-        <span class="meta">
-          <span class="price" id="price-hunters">20</span>
-          <span class="count" id="count-hunters">x0</span>
-        </span>
-      </button>
-
-      <button class="upgrade has-tip" id="zimovye" data-tip="Множитель пассива
-Каждый уровень: +1% к пассивному доходу за каждые 5 охотников.">
-        <span class="icon">🏕️</span>
-        <span class="label">Ясачные зимовья</span>
-        <span class="meta">
-          <span class="price" id="price-zimovye">200</span>
-          <span class="count" id="count-zimovye">x0</span>
-        </span>
-      </button>
-
-      <button class="upgrade has-tip" id="dogs" data-tip="Крит-успех клика
-+0.5% к шансу x5 за уровень (макс. 20 уровней).
-Первый клик после покупки — гарантированно критический.">
-        <span class="icon">🐕</span>
-        <span class="label">Охотничьи псы</span>
-        <span class="meta">
-          <span class="price" id="price-dogs">300</span>
-          <span class="count" id="count-dogs">x0/20</span>
-        </span>
-      </button>
-
-      <div class="controls">
-        <button id="reset" class="danger has-tip" data-tip="Сбросить весь прогресс (безвозвратно)">
-          <span class="icon">🗑️</span>
-          <span class="label">Сброс прогресса</span>
-        </button>
+  <!-- SPLASH SCREEN -->
+  <div id="splashScreen" class="splash-screen">
+    <div class="splash-content">
+      <h1 class="splash-title">Ясак</h1>
+      <button id="startButton" class="start-button">НАЧАТЬ ИГРУ</button>
+      <div class="loading-progress">
+        <div class="loading-bar">
+          <div class="loading-fill"></div>
+        </div>
+        <p class="loading-text">Загрузка...</p>
       </div>
     </div>
   </div>
 
-  <!-- ТОСТ-ОПОВЕЩЕНИЕ О ДОСТИЖЕНИИ -->
-  <div id="achievementToastHost" class="toast-host"></div>
+  <!-- MAIN GAME (initially hidden) -->
+  <div id="mainGame" class="main-game hidden">
+    <div class="background-character" aria-hidden="true">
+      <div class="background-character__sprite">
+        <div class="background-character__image"></div>
+      </div>
+    </div>
+    <div class="achievements-panel">
+      <button id="achievementsBtn" class="achievements-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="achievementsDropdown">
+        <span class="icon">🏆</span>
+        <span class="label">Достижения</span>
+        <span class="chevron">▾</span>
+      </button>
+      <div id="achievementsDropdown" class="ach-dropdown hidden" role="menu" aria-hidden="true">
+        <ul id="achievementsList" class="ach-list"></ul>
+      </div>
+    </div>
 
-  <audio id="sound-achievement" src="assets/sounds/bell.wav" preload="auto" aria-hidden="true"></audio>
-  <audio id="sound-crit" src="assets/sounds/bark.mp3" preload="auto" aria-hidden="true"></audio>
+    <div class="game-container">
+      <h1>Ясак Кликер</h1>
 
+      <div class="score-container">
+        <p id="score">Пушнина: 0</p>
+        <p id="fursPerSecond">0 шкурок/сек</p>
+        <p id="clickPower">За клик: 1</p>
+      </div>
+
+      <div class="top-controls">
+        <button id="clickButton"><span class="icon">🎯</span><span class="label">Добыть пушнину</span></button>
+      </div>
+
+      <div class="upgrades">
+        <h2>Улучшения</h2>
+
+        <button class="upgrade has-tip" id="traps" data-tip="Пассивный доход
++0.1 шкурки/сек за ловушку.">
+          <span class="icon">🪤</span>
+          <span class="label">Ловушки</span>
+          <span class="meta">
+            <span class="price" id="price-traps">50</span>
+            <span class="count" id="count-traps">x0</span>
+          </span>
+        </button>
+
+        <button class="upgrade has-tip" id="hunters" data-tip="Клики
++1 к силе клика за охотника.">
+          <span class="icon">🏹</span>
+          <span class="label">Охотники</span>
+          <span class="meta">
+            <span class="price" id="price-hunters">20</span>
+            <span class="count" id="count-hunters">x0</span>
+          </span>
+        </button>
+
+        <button class="upgrade has-tip" id="zimovye" data-tip="Множитель пассива
+Каждый уровень: +1% к пассивному доходу за каждые 5 охотников.">
+          <span class="icon">🏕️</span>
+          <span class="label">Ясачные зимовья</span>
+          <span class="meta">
+            <span class="price" id="price-zimovye">200</span>
+            <span class="count" id="count-zimovye">x0</span>
+          </span>
+        </button>
+
+        <button class="upgrade has-tip" id="dogs" data-tip="Крит-успех клика
++0.5% к шансу x5 за уровень (макс. 20 уровней).
+Первый клик после покупки — гарантированно критический.">
+          <span class="icon">🐕</span>
+          <span class="label">Охотничьи псы</span>
+          <span class="meta">
+            <span class="price" id="price-dogs">300</span>
+            <span class="count" id="count-dogs">x0/20</span>
+          </span>
+        </button>
+
+        <div class="controls">
+          <button id="reset" class="danger has-tip" data-tip="Сбросить весь прогресс (безвозвратно)">
+            <span class="icon">🗑️</span>
+            <span class="label">Сброс прогресса</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ТОСТ-ОПОВЕЩЕНИЕ О ДОСТИЖЕНИИ -->
+    <div id="achievementToastHost" class="toast-host"></div>
+
+    <audio id="sound-achievement" src="assets/sounds/bell.wav" preload="auto" aria-hidden="true"></audio>
+    <audio id="sound-crit" src="assets/sounds/bark.mp3" preload="auto" aria-hidden="true"></audio>
+  </div>
+
+  <script src="soundManager.js" defer></script>
   <script src="script.js" defer></script>
+  <script src="splash.js" defer></script>
 </body>
 </html>
