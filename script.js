@@ -33,15 +33,20 @@ const SOUNDS = {
   achievement: document.getElementById('sound-achievement'),
   crit: document.getElementById('sound-crit'),
 };
+// Подготавливаем аудио элементы для воспроизведения
 Object.values(SOUNDS).forEach((audio) => {
   if (!audio) return;
   audio.preload = 'auto';
   if (typeof audio.load === 'function') {
-    try { audio.load(); } catch (err) { console.warn('Не удалось подготовить звук', err); }
+    try { audio.load(); } catch (err) {
+      // В продакшене можно убрать это предупреждение
+      // console.warn('Не удалось подготовить звук', err);
+    }
   }
 });
 
 function playSound(audio) {
+  // Воспроизводим звук с обработкой ошибок
   if (!audio) return;
   try {
     audio.currentTime = 0;
@@ -50,7 +55,8 @@ function playSound(audio) {
       playPromise.catch(() => {});
     }
   } catch (err) {
-    console.warn('Не удалось воспроизвести звук', err);
+    // В продакшене можно убрать это предупреждение
+    // console.warn('Не удалось воспроизвести звук', err);
   }
 }
 
@@ -199,21 +205,44 @@ function renderNow() {
 
 // ===== РЕНДЕР ДОСТИЖЕНИЙ =====
 function renderAchievements(){
+  // Очищаем список достижений
+  elements.achievementsList.innerHTML = '';
+
+  // Разделяем достижения на открытые и закрытые
   const opened = [], locked = [];
   for (const a of ACHIEVEMENTS){ (hasAch(a.id) ? opened : locked).push(a); }
   const list = [...opened, ...locked];
-  elements.achievementsList.innerHTML = list.map(a => {
-    const unlocked = hasAch(a.id);
-    return `
-      <li class=\"ach-card ${unlocked ? 'open' : 'locked'}\" role=\"menuitem\">
-        <img src=\"${a.img}\" alt=\"${a.name}\" class=\"ach-img\" />
-        <div class=\"ach-body\">
-          <div class=\"ach-title\">${a.name}</div>
-          <div class=\"ach-desc\">${a.desc}</div>
-        </div>
-      </li>
-    `;
-  }).join('');
+
+  // Создаем элементы через DOM API для лучшей безопасности
+  for (const achievement of list) {
+    const unlocked = hasAch(achievement.id);
+
+    const li = document.createElement('li');
+    li.className = `ach-card ${unlocked ? 'open' : 'locked'}`;
+    li.role = 'menuitem';
+
+    const img = document.createElement('img');
+    img.src = achievement.img;
+    img.alt = achievement.name;
+    img.className = 'ach-img';
+
+    const bodyDiv = document.createElement('div');
+    bodyDiv.className = 'ach-body';
+
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'ach-title';
+    titleDiv.textContent = achievement.name;
+
+    const descDiv = document.createElement('div');
+    descDiv.className = 'ach-desc';
+    descDiv.textContent = achievement.desc;
+
+    bodyDiv.appendChild(titleDiv);
+    bodyDiv.appendChild(descDiv);
+    li.appendChild(img);
+    li.appendChild(bodyDiv);
+    elements.achievementsList.appendChild(li);
+  }
 }
 
 let _achievementsOpen = false;
@@ -228,13 +257,34 @@ function toggleAchievements(){ setAchievementsOpen(!_achievementsOpen); }
 
 // ===== ТОСТ О ДОСТИЖЕНИИ =====
 function showAchievementToast(ach){
+  // Создаем тост-уведомление через DOM API для лучшей безопасности
   const card = document.createElement('div');
   card.className = 'toast-card';
-  card.innerHTML = `
-    <div class=\"toast-glow\"></div>
-    <img src=\"${ach.img}\" alt=\"${ach.name}\" />
-    <div class=\"toast-text\"><strong>${ach.name}</strong><br>${ach.desc}</div>
-  `;
+
+  const glowDiv = document.createElement('div');
+  glowDiv.className = 'toast-glow';
+
+  const img = document.createElement('img');
+  img.src = ach.img;
+  img.alt = ach.name;
+
+  const textDiv = document.createElement('div');
+  textDiv.className = 'toast-text';
+
+  const strong = document.createElement('strong');
+  strong.textContent = ach.name;
+
+  const br = document.createElement('br');
+  const descText = document.createTextNode(ach.desc);
+
+  textDiv.appendChild(strong);
+  textDiv.appendChild(br);
+  textDiv.appendChild(descText);
+
+  card.appendChild(glowDiv);
+  card.appendChild(img);
+  card.appendChild(textDiv);
+
   card.addEventListener('click', ()=> card.remove());
   elements.toastHost.appendChild(card);
   setTimeout(()=> card.remove(), 10000);
@@ -251,6 +301,7 @@ function requestRender() {
 const SAVE_KEY = "yasakClickerSave";
 function tryParse(json) { try { return JSON.parse(json); } catch { return null; } }
 function saveNow() {
+  // Сохраняем игровое состояние в localStorage
   try {
     const payload = {
       furs: Math.max(0, Number(STATE.furs)||0),
@@ -264,7 +315,10 @@ function saveNow() {
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
     _dirty = false; _lastAutoSave = Date.now();
-  } catch (e) { console.error("Save failed:", e); }
+  } catch (e) {
+    // В продакшене можно убрать это предупреждение
+    // console.error("Save failed:", e);
+  }
 }
 let _saveTimer = null;
 function saveSoon(delayMs=800) { if (_saveTimer) clearTimeout(_saveTimer); _saveTimer=setTimeout(()=>{_saveTimer=null; saveNow();}, delayMs); }
@@ -296,9 +350,16 @@ function resetProgress() {
 
 // ===== АНИМАЦИЯ ЛИСЫ =====
 function createFoxElement() {
+  // Создаем анимацию лисы через DOM API для лучшей безопасности
   const fox = document.createElement("div");
   fox.className = "fox-animation";
-  fox.innerHTML = `🦊 <span class=\"gain\"></span>`;
+
+  const foxText = document.createTextNode('🦊 ');
+  const gainSpan = document.createElement("span");
+  gainSpan.className = "gain";
+
+  fox.appendChild(foxText);
+  fox.appendChild(gainSpan);
   document.body.appendChild(fox);
   return fox;
 }
@@ -342,35 +403,61 @@ function handleTrapUpgrade(){ buyTraps(); }
 function handleZimovyeUpgrade(){ buyZimovye(); }
 function handleDogsUpgrade(){ buyDogs(); }
 
-// ===== ДОХОД ПО ВРЕМЕНИ (секундная хронология) =====
+// ===== ДОХОД ПО ВРЕМЕНИ (реальное время) =====
+// Используем requestAnimationFrame для плавной анимации, но сохраняем реальные секунды для дохода
 function incomeTick(nowMs){
   if (_lastTick===0) _lastTick=nowMs;
-  const dt = Math.max(0, (nowMs - _lastTick)/1000); _lastTick = nowMs; _secAcc += dt;
+
+  // Вычисляем реальное время в секундах для точного расчета дохода
+  const dt = Math.max(0, (nowMs - _lastTick)/1000);
+  _lastTick = nowMs;
+  _secAcc += dt;
+
+  // Обрабатываем накопленные секунды для пассивного дохода
   while (_secAcc >= 1) {
     const fps = computeFps();
     const total = _passiveCarry + fps;
     const intAdd = Math.floor(total);
     _passiveCarry = total - intAdd;
+
     if (intAdd > 0) {
-      STATE.furs += intAdd; STATE.fursTotal += intAdd; showPassiveFox(intAdd); markDirtyAndMaybeSave();
+      STATE.furs += intAdd;
+      STATE.fursTotal += intAdd;
+      showPassiveFox(intAdd);
+      markDirtyAndMaybeSave();
       checkAchievements();
     }
     _secAcc -= 1;
   }
+
+  // Обновляем UI через requestAnimationFrame для плавности
   requestRender();
-  if (_dirty && nowMs - _lastAutoSave > 30000) saveNow();
-  setTimeout(()=>requestAnimationFrame(incomeTick), 100);
+
+  // Автосохранение каждые 30 секунд
+  if (_dirty && nowMs - _lastAutoSave > 30000) {
+    saveNow();
+  }
+
+  // Продолжаем цикл анимации
+  requestAnimationFrame(incomeTick);
 }
 
-// ===== ИНИЦИАЛИЗАЦИЯ =====
+// ===== ИНИЦИАЛИЗАЦИЯ ИГРЫ =====
 function init(){
-  loadGame(); recalcRates(); checkAchievements();
+  // Загружаем сохраненное состояние игры
+  loadGame();
+  recalcRates();
+  checkAchievements();
+
+  // Подключаем обработчики событий для интерактивных элементов
   elements.clickButton.addEventListener("click", handleClick);
   elements.huntersUpgrade.addEventListener("click", handleHunterUpgrade);
   elements.trapsUpgrade.addEventListener("click", handleTrapUpgrade);
   elements.zimovyeUpgrade.addEventListener("click", handleZimovyeUpgrade);
   elements.dogsUpgrade.addEventListener("click", handleDogsUpgrade);
   elements.resetButton.addEventListener("click", resetProgress);
+
+  // Обработчики для системы достижений
   elements.achievementsBtn.addEventListener('click', (ev)=>{ ev.stopPropagation(); toggleAchievements(); });
   elements.achievementsDropdown.addEventListener('click', (ev)=> ev.stopPropagation());
   document.addEventListener('click', (ev)=>{
@@ -380,8 +467,17 @@ function init(){
     }
   });
   document.addEventListener('keydown', (ev)=>{ if (ev.key === 'Escape' && _achievementsOpen) setAchievementsOpen(false); });
+
+  // Инициализируем UI и запускаем игровой цикл
   renderAchievements();
   setAchievementsOpen(false);
-  renderNow(); requestAnimationFrame(incomeTick);
+  renderNow();
+  requestAnimationFrame(incomeTick);
 }
-if (document.readyState==='complete' || document.readyState==='interactive') init(); else window.addEventListener('DOMContentLoaded', init);
+
+// Запускаем игру когда DOM готов
+if (document.readyState==='complete' || document.readyState==='interactive') {
+  init();
+} else {
+  window.addEventListener('DOMContentLoaded', init);
+}
