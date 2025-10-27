@@ -1,7 +1,7 @@
 /* Встраиваем шрифт Мирослав */
 @font-face {
   font-family: 'Мирослав';
-  src: url('/Мирослав Regular.ttf') format('truetype');
+  src: url('assets/fonts/Мирослав Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -10,7 +10,7 @@
 body {
   font-family: 'Мирослав', serif;
   background-color: #e6e2d6;
-  background-image: url("Тайга.jpg");
+  background-image: url("assets/images/Тайга.jpg");
   background-size: cover;
   display: flex;
   justify-content: center;
@@ -251,7 +251,7 @@ h1 { color: #5d1917; text-shadow: 1px 1px 2px #ccc; }
 .background-character__image {
   width: 100%;
   height: 100%;
-  background-image: url('strelets.png');
+  background-image: url('assets/images/strelets.png');
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center bottom;
